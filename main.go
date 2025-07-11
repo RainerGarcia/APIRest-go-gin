@@ -73,6 +73,48 @@ func updatePersona(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Persona not found"})
 }
 
+func updateField(c *gin.Context) {
+	id := c.Param("id")
+	newid, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var updated map[string]interface{}
+
+	if err := c.BindJSON(&updated); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	for i, p := range personas {
+		if p.ID == newid {
+			// Modificar nombre si viene en el JSON
+			if nombre, ok := updated["nombre"].(string); ok {
+				personas[i].Nombre = nombre
+			}
+			// Modificar apellido si viene en el JSON
+			if apellido, ok := updated["apellido"].(string); ok {
+				personas[i].Apellido = apellido
+			}
+			// Modificar edad si viene en el JSON
+			if edad, ok := updated["edad"].(float64); ok {
+				personas[i].Edad = int(edad)
+			}
+			// Modificar cedula si viene en el JSON
+			if cedula, ok := updated["cedula"].(string); ok {
+				personas[i].Cedula = cedula
+			}
+			c.IndentedJSON(http.StatusOK, personas[i])
+			return
+		}
+	}
+
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Persona not found"})
+}
+
 func deletePersona(c *gin.Context) {
 	id := c.Param("id")
 	newid, err := strconv.Atoi(id)
@@ -180,6 +222,7 @@ func main() {
 	r.GET("/personas/apellido/:apellido", getPersonaByApellido)
 	r.GET("/personas/edad/:edad", getPersonaByEdad)
 	r.GET("/personas/cedula/:cedula", getPersonaByCedula)
+	r.PATCH("personas/:id", updateField)
 	r.POST("/personas", createPersona)
 	r.PUT("/personas/:id", updatePersona)
 	r.DELETE("/personas/:id", deletePersona)
