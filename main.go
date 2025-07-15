@@ -42,7 +42,16 @@ func createPersona(c *gin.Context) {
 		}
 	}
 
-	newPersona.ID = len(personas) + 1
+	mayorid := 0
+
+	for i := range personas {
+		if personas[i].ID > mayorid {
+			mayorid = personas[i].ID
+		}
+	}
+
+	newPersona.ID = mayorid + 1
+
 	personas = append(personas, newPersona)
 
 	c.IndentedJSON(http.StatusCreated, newPersona)
@@ -62,8 +71,8 @@ func updatePersona(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	for i, p := range personas {
-		if newid == p.ID {
+	for i := range personas {
+		if newid == personas[i].ID {
 			personas[i] = updatedPersona
 			c.IndentedJSON(http.StatusOK, updatedPersona)
 			return
@@ -89,21 +98,17 @@ func updateField(c *gin.Context) {
 		return
 	}
 
-	for i, p := range personas {
-		if p.ID == newid {
-			// Modificar nombre si viene en el JSON
+	for i := range personas {
+		if personas[i].ID == newid {
 			if nombre, ok := updated["nombre"].(string); ok {
 				personas[i].Nombre = nombre
 			}
-			// Modificar apellido si viene en el JSON
 			if apellido, ok := updated["apellido"].(string); ok {
 				personas[i].Apellido = apellido
 			}
-			// Modificar edad si viene en el JSON
 			if edad, ok := updated["edad"].(float64); ok {
 				personas[i].Edad = int(edad)
 			}
-			// Modificar cedula si viene en el JSON
 			if cedula, ok := updated["cedula"].(string); ok {
 				personas[i].Cedula = cedula
 			}
@@ -122,8 +127,8 @@ func deletePersona(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
-	for i, p := range personas {
-		if newid == p.ID {
+	for i := range personas {
+		if newid == personas[i].ID {
 			personas = append(personas[:i], personas[i+1:]...)
 			c.IndentedJSON(http.StatusOK, gin.H{"message": "Persona deleted"})
 			return
@@ -141,9 +146,9 @@ func getPersonaByID(c *gin.Context) {
 		return
 	}
 
-	for _, p := range personas {
-		if newid == p.ID {
-			c.IndentedJSON(http.StatusOK, p)
+	for i := range personas {
+		if newid == personas[i].ID {
+			c.IndentedJSON(http.StatusOK, personas[i])
 			return
 		}
 	}
@@ -154,9 +159,9 @@ func getPersonaByID(c *gin.Context) {
 func getPersonaByNombre(c *gin.Context) {
 	nombre := c.Param("nombre")
 
-	for _, p := range personas {
-		if nombre == p.Nombre {
-			c.IndentedJSON(http.StatusOK, p)
+	for i := range personas {
+		if nombre == personas[i].Nombre {
+			c.IndentedJSON(http.StatusOK, personas[i])
 			return
 		}
 	}
@@ -167,9 +172,9 @@ func getPersonaByNombre(c *gin.Context) {
 func getPersonaByApellido(c *gin.Context) {
 	apellido := c.Param("apellido")
 
-	for _, p := range personas {
-		if apellido == p.Apellido {
-			c.IndentedJSON(http.StatusOK, p)
+	for i := range personas {
+		if apellido == personas[i].Apellido {
+			c.IndentedJSON(http.StatusOK, personas[i])
 			return
 		}
 	}
@@ -185,9 +190,9 @@ func getPersonaByEdad(c *gin.Context) {
 		return
 	}
 
-	for _, p := range personas {
-		if newEdad == p.Edad {
-			c.IndentedJSON(http.StatusOK, p)
+	for i := range personas {
+		if newEdad == personas[i].Edad {
+			c.IndentedJSON(http.StatusOK, personas[i])
 			return
 		}
 	}
@@ -198,9 +203,9 @@ func getPersonaByEdad(c *gin.Context) {
 func getPersonaByCedula(c *gin.Context) {
 	cedula := c.Param("cedula")
 
-	for _, p := range personas {
-		if cedula == p.Cedula {
-			c.IndentedJSON(http.StatusOK, p)
+	for i := range personas {
+		if cedula == personas[i].Cedula {
+			c.IndentedJSON(http.StatusOK, personas[i])
 			return
 		}
 	}
